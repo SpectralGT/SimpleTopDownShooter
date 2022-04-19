@@ -115,7 +115,6 @@ export class Player extends Actor {
 		) {
 			const bullet = this.gun.get();
 			bullet.fire(this, this.gunRot);
-			this.scene.cameras.main.shake(100, 0.001);
 			this.gunCoolDownTime = 200;
 		}
 
