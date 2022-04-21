@@ -1,20 +1,24 @@
 import { GameObjects, Scene, Tilemaps } from "phaser";
 import { Enemy } from "../../classes/enemy";
+import { Missile } from "../../classes/Missile";
 import { Player } from "../../classes/player";
 import { EVENTS_NAMES } from "../../consts";
 import {gameObjectsToObjectPoints} from "../../helpers/gameobject -to-object-point";
 export class Level1 extends Scene {
+
 	private king!: GameObjects.Sprite;
 	private player!: Player;
-
 	private map!: Tilemaps.Tilemap;
 	private tileset!: Tilemaps.Tileset;
 	private wallsLayer!: Tilemaps.TilemapLayer;
 	private groundLayer!: Tilemaps.TilemapLayer;
 	private chests!: Phaser.GameObjects.Sprite[];
 	private enemies!: Phaser.GameObjects.Sprite[];
+	private missile!: Missile;
+
 	constructor() {
 		super("level-1-scene");
+
 	}
 
 	private initMap(): void {
@@ -86,6 +90,7 @@ export class Level1 extends Scene {
 	create(): void {
 		this.initMap();
 		this.player = new Player(this, 100, 100);
+		this.missile = new Missile(this, 100, 100);
 		this.physics.add.collider(this.player, this.wallsLayer);
 		this.physics.add.collider(this.player.gun, this.wallsLayer, (obj1, obj2) => {
 			obj1.destroy();
@@ -97,5 +102,7 @@ export class Level1 extends Scene {
 
 	update(time:number,delta:number): void {
 		this.player.update(delta);
+		this.missile.update(delta);
+		
 	}
 }
