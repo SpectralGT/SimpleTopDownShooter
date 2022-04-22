@@ -1,46 +1,34 @@
 export class Missile extends Phaser.Physics.Arcade.Sprite {
-    private turnDegreesPerFrame: number = 1;
-	private speed: number = 100;
+	private velocityFromRotation =
+		Phaser.Physics.Arcade.ArcadePhysics.prototype.velocityFromRotation;
+	private desiredAngle!: number;
+	private angleDelta!: number;
+	private turnSpeed: number = 1 * Math.PI;
+	private turnSpeedDegrees: number = Phaser.Math.RadToDeg(this.turnSpeed);
+	private speed: number = 50;
 
-    constructor(scene: Phaser.Scene, x: number, y: number) {
-        super(scene, x, y, "tiles_spr", 50);
-        scene.add.existing(this);
-        scene.physics.add.existing(this);
+	constructor(scene: Phaser.Scene, x: number, y: number) {
+		super(scene, x, y, "tiles_spr", 50);
+
+		scene.add.existing(this);
+		scene.physics.add.existing(this);
 	}
-	update(delta: number): void {
-		const target = this.scene.game.input.mousePointer;
-
-		const targetAngle = Phaser.Math.Angle.Between(
-			this.y,
+	update(): void {
+		this.desiredAngle = Phaser.Math.Angle.Between(
 			this.x,
-			target.y + this.scene.cameras.main.scrollY,
-			target.x + this.scene.cameras.main.scrollX
+			this.y,
+			this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX,
+			this.scene.input.mousePointer.y + this.scene.cameras.main.scrollY
 		);
-		// clamp to -PI to PI for smarter turning
-		let diff = Phaser.Math.Angle.Wrap(targetAngle - this.rotation);
+		this.angleDelta = Phaser.Math.Angle.Wrap(this.desiredAngle - this.rotation);
 
-		// set to targetAngle if less than turnDegreesPerFrame
-		if (Math.abs(diff) < Phaser.Math.DegToRad(this.turnDegreesPerFrame)) {
-			this.rotation = targetAngle;
+		if (Phaser.Math.Within(this.angleDelta, 0, 0.02 * this.turnSpeed)) {
+			this.rotation = this.desiredAngle;
+			this.setAngularVelocity(0);
 		} else {
-			let angle = this.angle;
-			if (diff > 0) {
-				// turn clockwise
-				angle += this.turnDegreesPerFrame;
-			} else {
-				// turn counter-clockwise
-				angle -= this.turnDegreesPerFrame;
-			}
-
-			this.setAngle(angle);
+			this.setAngularVelocity(Math.sign(this.angleDelta) * this.turnSpeedDegrees);
 		}
 
-		// move missile in direction facing
-		const vx = Math.cos(this.rotation) * this.speed;
-		const vy = Math.sin(this.rotation) * this.speed;
-
-        this.setVelocityX(vx);
-		this.setVelocityY(vy);
-		
+		this.velocityFromRotation(this.rotation, this.speed, this.body.velocity);
 	}
 }

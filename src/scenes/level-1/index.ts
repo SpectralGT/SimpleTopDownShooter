@@ -102,7 +102,7 @@ export class Level1 extends Scene {
 
 	update(time:number,delta:number): void {
 		this.player.update(delta);
-		this.missile.update(delta);
+		this.missile.update();
 		
 	}
 }
