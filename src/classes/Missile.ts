@@ -14,21 +14,31 @@ export class Missile extends Phaser.Physics.Arcade.Sprite {
 		scene.physics.add.existing(this);
 	}
 	update(): void {
-		this.desiredAngle = Phaser.Math.Angle.Between(
-			this.x,
-			this.y,
-			this.scene.input.mousePointer.x + this.scene.cameras.main.scrollX,
-			this.scene.input.mousePointer.y + this.scene.cameras.main.scrollY
-		);
-		this.angleDelta = Phaser.Math.Angle.Wrap(this.desiredAngle - this.rotation);
+		var targetAngle = this.game.math.angleBetween(
+        this.x, this.y,
+        this.game.input.activePointer.x, this.game.input.activePointer.y
+    );
 
-		if (Phaser.Math.Within(this.angleDelta, 0, 0.02 * this.turnSpeed)) {
-			this.rotation = this.desiredAngle;
-			this.setAngularVelocity(0);
-		} else {
-			this.setAngularVelocity(Math.sign(this.angleDelta) * this.turnSpeedDegrees);
-		}
+    // Gradually (this.TURN_RATE) aim the missile towards the target angle
+    if (this.rotation !== targetAngle) {
+        // Calculate difference between the current angle and targetAngle
+        var delta = targetAngle - this.rotation;
 
-		this.velocityFromRotation(this.rotation, this.speed, this.body.velocity);
+        // Keep it in range from -180 to 180 to make the most efficient turns.
+        if (delta > Math.PI) delta -= Math.PI * 2;
+        if (delta < -Math.PI) delta += Math.PI * 2;
+
+        if (delta > 0) {
+            // Turn clockwise
+            this.angle += this.TURN_RATE;
+        } else {
+            // Turn counter-clockwise
+            this.angle -= this.TURN_RATE;
+        }
+
+        // Just set angle to target angle if they are close
+        if (Math.abs(delta) < this.game.math.degToRad(this.TURN_RATE)) {
+            this.rotation = targetAngle;
+        }
 	}
 }
