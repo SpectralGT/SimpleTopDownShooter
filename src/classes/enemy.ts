@@ -5,8 +5,8 @@ import { Player } from "./player";
 export class Enemy extends Actor {
 	private target: Player;
 	private AGRESSOR_RADIUS = 100;
-    private attackHandler: () => void;
-    
+	private attackHandler: () => void;
+
 	constructor(
 		scene: Phaser.Scene,
 		x: number,
@@ -31,12 +31,13 @@ export class Enemy extends Actor {
 					{ x: this.target.x, y: this.target.y }
 				) < this.target.width
 			) {
-				this.getDamage();
-				this.disableBody(true, false);
-				this.scene.time.delayedCall(300, () => {
-					this.scene.cameras.main.shake(100, 0.005);
-					this.destroy();
-				});
+				this.getDamage(50);
+				if (this.getHPValue() <= 0) {
+					this.scene.cameras.main.shake(100, 0.01);
+					this.setHPValue(100);
+					this.scene.game.events.emit(EVENTS_NAMES.chestLoot);
+					this.setRandomPosition(5, 5, 400, 400);
+				}
 			}
 		};
 

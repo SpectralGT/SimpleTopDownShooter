@@ -1,6 +1,5 @@
-import { GameObjects, Scene, Tilemaps } from "phaser";
+import { GameObjects, Physics, Scene, Tilemaps } from "phaser";
 import { Enemy } from "../../classes/enemy";
-import { Missile } from "../../classes/Missile";
 import { Player } from "../../classes/player";
 import { EVENTS_NAMES } from "../../consts";
 import {gameObjectsToObjectPoints} from "../../helpers/gameobject -to-object-point";
@@ -14,7 +13,7 @@ export class Level1 extends Scene {
 	private groundLayer!: Tilemaps.TilemapLayer;
 	private chests!: Phaser.GameObjects.Sprite[];
 	private enemies!: Phaser.GameObjects.Sprite[];
-	private missile!: Missile;
+	private particleEmitter!:Phaser.GameObjects.Particles.ParticleEmitter;
 
 	constructor() {
 		super("level-1-scene");
@@ -75,22 +74,36 @@ export class Level1 extends Scene {
 		this.physics.add.collider(this.enemies, this.wallsLayer);
 		this.physics.add.collider(this.enemies, this.enemies);
 		this.physics.add.collider(this.player, this.enemies, (obj1, obj2) => {
-			(obj1 as Player).getDamage(1);
+			(obj1 as Player).getDamage(0.1);
 		});
 
 		this.physics.add.collider(this.player.gun, this.enemies, (obj1, obj2) => {
 			(obj1 as Enemy).getDamage(10);
 			if ((obj1 as Enemy).getHPValue() <= 0) {
 				this.cameras.main.shake(100, 0.01);
-				obj1.destroy();
+				(obj1 as Enemy).setHPValue(100);
+				this.particleEmitter.explode(20, (obj1 as Enemy).x, (obj1 as Enemy).y);
+				this.game.events.emit(EVENTS_NAMES.chestLoot);
+				(obj1 as Enemy).setRandomPosition(5,5, 400, 400);
 			}
 			obj2.destroy();
 		})
 	}
 	create(): void {
 		this.initMap();
+		this.particleEmitter = this.add.particles("bloodParticle").createEmitter({
+			x: 400,
+			y: 300,
+			speed: { min: -800, max: 800 },
+			angle: { min: 0, max: 360 },
+			scale: { start: 0.3, end: 0 },
+			blendMode: "SCREEN",
+			//active: false,
+			lifespan: 300,
+			gravityY: 800,
+		});
+		this.particleEmitter.explode(0, 0, 0);
 		this.player = new Player(this, 100, 100);
-		this.missile = new Missile(this, 100, 100);
 		this.physics.add.collider(this.player, this.wallsLayer);
 		this.physics.add.collider(this.player.gun, this.wallsLayer, (obj1, obj2) => {
 			obj1.destroy();
@@ -102,7 +115,5 @@ export class Level1 extends Scene {
 
 	update(time:number,delta:number): void {
 		this.player.update(delta);
-		this.missile.update();
-		
 	}
 }

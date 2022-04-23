@@ -12,9 +12,6 @@ export class UIScene extends Scene {
 		super("ui-scene");
 		this.chestLootHandler = () => {
 			this.score.changeValue(ScoreOperations.INCREASE, 10);
-			if (this.score.getValue() >= 30) {
-				this.game.events.emit(EVENTS_NAMES.gameEnd, GameStatus.WIN);
-			}
 		};
 
 		this.gameEndHandler = (status) => {
@@ -30,7 +27,7 @@ export class UIScene extends Scene {
 			)
 				.setAlign("center")
 				.setColor(status === GameStatus.LOSE ? "#ff0000" : "#ffffff");
-			
+
 			this.gameEndPhrase.setPosition(
 				this.game.scale.width / 2 - this.gameEndPhrase.width / 2,
 				this.game.scale.height * 0.4

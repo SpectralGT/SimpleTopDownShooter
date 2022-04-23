@@ -1,6 +1,6 @@
 import { EVENTS_NAMES, GameStatus } from "../consts";
 import { Actor } from "./actor";
-import { Bullet } from "./bullet";
+import { Missile } from "./Missile";
 import { Text } from "./text";
 export class Player extends Actor {
 	private keyW: Phaser.Input.Keyboard.Key;
@@ -48,7 +48,7 @@ export class Player extends Actor {
 		});
 
 		this.gun = this.scene.physics.add.group({
-			classType: Bullet,
+			classType: Missile,
 			runChildUpdate: true,
 		});
 		this.gunCoolDownTime = 0;
@@ -79,23 +79,31 @@ export class Player extends Actor {
 
 		if (this.keyW?.isDown) {
 			this.body.velocity.y = -110;
-			this.anims.play("run", true);
+			if (!this.anims.isPlaying) {
+				this.anims.play("run", true);
+			}
 		}
 		if (this.keyA?.isDown) {
 			this.body.velocity.x = -110;
 			this.checkFlip();
 			this.getBody().setOffset(48, 15);
-			this.anims.play("run", true);
+			if (!this.anims.isPlaying) {
+				this.anims.play("run", true);
+			}
 		}
 		if (this.keyS?.isDown) {
 			this.body.velocity.y = 110;
-			this.anims.play("run", true);
+			if (!this.anims.isPlaying) {
+				this.anims.play("run", true);
+			}
 		}
 		if (this.keyD?.isDown) {
 			this.body.velocity.x = 110;
 			this.checkFlip();
 			this.getBody().setOffset(15, 15);
-			this.anims.play("run", true);
+			if (!this.anims.isPlaying) {
+				this.anims.play("run", true);
+			}
 		}
 
 		if (this.keyShift?.isDown) {
@@ -122,9 +130,9 @@ export class Player extends Actor {
 		this.hpValue.setOrigin(0.8, 0.5);
 	}
 
-	public getDamage(value?: number): void {
+	public getDamage(value: number): void {
 		super.getDamage(value);
-		this.hpValue.setText(this.hp.toString());
+		this.hpValue.setText(Math.ceil(this.hp).toString());
 		if (this.hp <= 0) {
 			this.scene.game.events.emit(EVENTS_NAMES.gameEnd, GameStatus.LOSE);
 		}

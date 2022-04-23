@@ -13,7 +13,10 @@ export class LoadingScene extends Scene{
 					"spritesheets/a-king.png",
 					"spritesheets/a-king_atlas.json"
         );
-        
+        this.load.image({
+            key: 'bloodParticle',
+            url: "sprites/bloodParticle.png"
+        });
         this.load.image({
 					key: "tiles",
 					url: "tilemaps/tiles/dungeon-16-16.png",
