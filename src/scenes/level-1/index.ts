@@ -1,11 +1,10 @@
-import { GameObjects, Physics, Scene, Tilemaps } from "phaser";
+import {Scene, Tilemaps } from "phaser";
 import { Enemy } from "../../classes/enemy";
 import { Player } from "../../classes/player";
 import { EVENTS_NAMES } from "../../consts";
 import {gameObjectsToObjectPoints} from "../../helpers/gameobject -to-object-point";
 export class Level1 extends Scene {
 
-	private king!: GameObjects.Sprite;
 	private player!: Player;
 	private map!: Tilemaps.Tilemap;
 	private tileset!: Tilemaps.Tileset;
